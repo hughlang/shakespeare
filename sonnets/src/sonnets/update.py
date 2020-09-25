@@ -4,6 +4,7 @@
 # with non-breaking spaces. We fix that in the code here. If they fix it on their side in the
 # future, this script should be run again.
 
+import re
 import requests
 from bs4 import BeautifulSoup
 
@@ -38,13 +39,14 @@ class page_builder:
         return response.text
 
 
-# We know there are 155 sonnets, so this is hard coded as a loop to scrape each url page, which use
+# We know there are 154 sonnets, so this is hard coded as a loop to scrape each url page, which use
 # roman numerals for unknown reasons.
 for x in range(1, 155):
     roman = converter().int_to_Roman(x)
     html = page_builder().scraper(roman)
     soup = BeautifulSoup(html, 'html.parser')
-    quote = str(soup.body.contents[1])
+    quote = str(soup.body.blockquote)
+    quote = re.sub(u'  ', '&nbsp;&nbsp;', quote)
     path = 'poem-{0}.htm'.format(x)
     file = open(path, 'w')
     file.write(quote)
