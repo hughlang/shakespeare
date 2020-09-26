@@ -39,6 +39,8 @@ class page_builder:
         return response.text
 
 
+titles = {}
+
 # We know there are 154 sonnets, so this is hard coded as a loop to scrape each url page, which use
 # roman numerals for unknown reasons.
 for x in range(1, 155):
@@ -47,10 +49,16 @@ for x in range(1, 155):
     soup = BeautifulSoup(html, 'html.parser')
     quote = str(soup.body.blockquote)
     quote = re.sub(u'  ', '&nbsp;&nbsp;', quote)
-    path = 'poem-{0}.htm'.format(x)
+    line1 = soup.body.blockquote.contents[0]
+    line1 = line1.rstrip(',;:')
+    titles[x] = line1
+    path = './fragments/poem-{0}.htm'.format(x)
     file = open(path, 'w')
     file.write(quote)
     file.close()
 
 
+print("===================================")
+for item in sorted(titles.items()) :
+    print(item[0] , " ::" , item[1] )
 
