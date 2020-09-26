@@ -4,6 +4,8 @@
 # with non-breaking spaces. We fix that in the code here. If they fix it on their side in the
 # future, this script should be run again.
 
+import csv
+import json
 import re
 import requests
 from bs4 import BeautifulSoup
@@ -31,21 +33,33 @@ class converter:
             i += 1
         return roman_num
 
-class page_builder:
-    def scraper(self, roman):
+class file_tools:
+    def load_html(self, roman):
         url = 'http://shakespeare.mit.edu/Poetry/sonnet.{0}.html'.format(roman)
         print(url)
         response = requests.get(url)
         return response.text
+    def load_ig_mappings(self):
+        results = {}
+        with open("IG-index.csv") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                results['id'] = results['instagram_id']
+        csvfile.close()
+        return results
 
+# # Writing to sample.json
+# with open("sample.json", "w") as outfile:
+#     outfile.write(json_object)
 
 titles = {}
+ig_mappings = file_tools().load_ig_mappings()
 
 # We know there are 154 sonnets, so this is hard coded as a loop to scrape each url page, which use
 # roman numerals for unknown reasons.
 for x in range(1, 155):
     roman = converter().int_to_Roman(x)
-    html = page_builder().scraper(roman)
+    html = file_tools().load_html(roman)
     soup = BeautifulSoup(html, 'html.parser')
     quote = str(soup.body.blockquote)
     quote = re.sub(u'  ', '&nbsp;&nbsp;', quote)
@@ -58,7 +72,17 @@ for x in range(1, 155):
     file.close()
 
 
+alldata = {}
 print("===================================")
 for item in sorted(titles.items()) :
     print(item[0] , " ::" , item[1] )
+    alldata[item[0]] = item[1]
+    if ig_mappings[item[0]] is not None:
+        alldata['ig_id'] = item[1]
 
+# Serializing json
+json_object = json.dumps(alldata, indent = 4)
+
+# Writing to sample.json
+with open("sonnets.json", "w") as outfile:
+    outfile.write(json_object)

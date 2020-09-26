@@ -19,17 +19,20 @@ with open("template-toc.html") as template:
         print('Did not find tile-1')
 
     container = tile1.parent
+    lasttile = tile1
     for i in range(2, 155):
         newtile = copy.copy(tile1)
         new_id = 'tile-{0}'.format(i)
         newtile['id'] = new_id
         new_url = 'sonnets/sonnect-{0}'.format(i)
         newtile.a['href'] = new_url
-        # container.in
-        html = str(soup.prettify("utf-8"))
-        outpath = '../../www/sonnets/sonnet-{0}.html'.format(i)
-        with open(outpath, "w") as file:
-            file.write(html)
-            file.close()
+        container.append(newtile)
+        lasttile = newtile
+
+    html = str(soup.prettify())
+    outpath = '../../www/sonnets/index.html'
+    with open(outpath, "w") as file:
+        file.write(html)
+        file.close()
 
 
